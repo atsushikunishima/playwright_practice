@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IDなしルート | ゴール（山）</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">IDなしルート — GOAL</p>
+      <div class="goal-emoji">⛰</div>
+      <h1>山ルートでゴール！</h1>
+
+      <div class="summary">
+        <div><span>名前</span><span></span></div>
+        <div><span>好きな季節</span><span></span></div>
+        <div><span>選んだルート</span><span>山ルート</span></div>
+      </div>
+
+      <a class="restart" href="../index.html">TOP に戻る</a>
+    </div>
+
+    <script>
+      const values = document.querySelectorAll('.summary div span:last-child')
+      values[0].textContent = sessionStorage.getItem('name') || '(未入力)'
+      values[1].textContent = sessionStorage.getItem('season') || '(未選択)'
+    </script>
+  </body>
+</html>

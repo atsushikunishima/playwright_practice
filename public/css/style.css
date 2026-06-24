@@ -98,8 +98,21 @@ button {
   cursor: pointer;
 }
 
+button.secondary {
+  background: #334155;
+  color: var(--text);
+}
+
 button:hover {
   filter: brightness(1.1);
+}
+
+.route-note {
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.5rem 0 1.5rem;
+  line-height: 1.5;
 }
 
 .goal-emoji {

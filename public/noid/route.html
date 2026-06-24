@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IDなしルート | ルート選択</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">IDなしルート — STEP 3 / 3</p>
+      <h1>どちらへ行く？</h1>
+      <p class="lead">選んだルートでゴールが分岐します。</p>
+
+      <label class="choice">
+        <input type="radio" name="route" value="mountain" checked />
+        ⛰ 山ルート
+      </label>
+      <label class="choice">
+        <input type="radio" name="route" value="sea" />
+        🌊 海ルート
+      </label>
+
+      <button>ゴールへ</button>
+    </div>
+
+    <script>
+      document.querySelector('button').addEventListener('click', () => {
+        const route = document.querySelector('input[name="route"]:checked').value
+        sessionStorage.setItem('route', route)
+        window.location.href = route === 'mountain' ? 'mountain.html' : 'sea.html'
+      })
+    </script>
+  </body>
+</html>

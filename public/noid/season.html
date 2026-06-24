@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IDなしルート | 季節</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">IDなしルート — STEP 2 / 3</p>
+      <h1>好きな季節は？</h1>
+      <label class="field">
+        セレクトボックス
+        <select>
+          <option value="春">春</option>
+          <option value="夏">夏</option>
+          <option value="秋">秋</option>
+          <option value="冬">冬</option>
+        </select>
+      </label>
+      <button>次へ</button>
+    </div>
+
+    <script>
+      const select = document.querySelector('select')
+      document.querySelector('button').addEventListener('click', () => {
+        sessionStorage.setItem('season', select.value)
+        window.location.href = 'route.html'
+      })
+    </script>
+  </body>
+</html>

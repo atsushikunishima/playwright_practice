@@ -4,16 +4,22 @@
 練習対象は Cloudflare Pages にホスティングした本リポジトリの `public/` です。
 
 サイトは「1 画面 1 要素 ＋ 次へ」のシンプルなフロー型です。
-ラジオの選択で分岐し、2 つのゴールのどちらかに辿り着きます。
+TOP から 2 つのルートに分かれ、ラジオの選択でさらに分岐して 2 つのゴールに辿り着きます。
 
 ```
-index.html (スタート)
-  → steps/name.html    STEP1: テキストボックス
-  → steps/season.html  STEP2: セレクトボックス
-  → steps/route.html   STEP3: ラジオボタン（分岐）
-       ├─ 山ルート → goals/mountain.html
-       └─ 海ルート → goals/sea.html
+index.html (TOP)
+  ├─ 🟢 ID付きルート  … id/ 配下。getByTestId など ID で指定できる
+  │     id/name.html    STEP1: テキストボックス
+  │     id/season.html  STEP2: セレクトボックス
+  │     id/route.html   STEP3: ラジオ（分岐）
+  │        ├─ 山 → id/mountain.html
+  │        └─ 海 → id/sea.html
+  └─ 🟡 IDなしルート  … noid/ 配下。getByRole / getByLabel / getByPlaceholder で指定
+        noid/name.html / season.html / route.html → mountain.html / sea.html
 ```
+
+- **ID付きルート**: 各要素に `id` / `data-testid` あり。安定したセレクタの基本練習。
+- **IDなしルート**: ID なし。ロール・ラベル・プレースホルダーで指定する応用練習。
 
 ---
 
@@ -53,9 +59,10 @@ const { test, expect } = require('@playwright/test')
 
 const BASE = 'https://<あなたのサイト>.pages.dev'
 
-test('山ルートでゴールする', async ({ page }) => {
+// ── ID付きルート（getByTestId で指定）──
+test('IDルート: 山ルートでゴールする', async ({ page }) => {
   await page.goto(`${BASE}/`)
-  await page.getByTestId('start').click()          // STEP0 → 1
+  await page.getByTestId('route-id').click()        // TOP → IDルート
 
   await page.getByTestId('name').fill('山田 太郎')  // STEP1 テキスト
   await page.getByTestId('next').click()
@@ -66,10 +73,26 @@ test('山ルートでゴールする', async ({ page }) => {
   await page.getByTestId('route-mountain').check()  // STEP3 ラジオ（分岐）
   await page.getByTestId('next').click()
 
-  // ゴール確認
   await expect(page.getByTestId('goal-title')).toHaveText('山ルートでゴール！')
   await expect(page.getByTestId('summary-name')).toHaveText('山田 太郎')
   await page.screenshot({ path: 'goal-mountain.png' })
+})
+
+// ── IDなしルート（role / label / placeholder で指定）──
+test('IDなしルート: 海ルートでゴールする', async ({ page }) => {
+  await page.goto(`${BASE}/`)
+  await page.getByTestId('route-noid').click()      // TOP → IDなしルート
+
+  await page.getByLabel('テキストボックス').fill('佐藤 花子')
+  await page.getByRole('button', { name: '次へ' }).click()
+
+  await page.getByLabel('セレクトボックス').selectOption('夏')
+  await page.getByRole('button', { name: '次へ' }).click()
+
+  await page.getByRole('radio', { name: '🌊 海ルート' }).check()
+  await page.getByRole('button', { name: 'ゴールへ' }).click()
+
+  await expect(page.getByRole('heading')).toHaveText('海ルートでゴール！')
 })
 ```
 

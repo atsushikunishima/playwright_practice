@@ -3,25 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Playwright 研修フロー | スタート</title>
+    <title>Playwright 研修フロー | TOP</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <div class="card">
-      <p class="step-label">STEP 0 / 4</p>
+      <p class="step-label">TOP</p>
       <h1>Playwright 研修フロー</h1>
       <p class="lead">
-        1 画面に 1 要素だけ。「次へ」で進み、ラジオの選択で分岐して
-        ゴールに辿り着きます。スクリプトを書く練習に使ってください。
+        2 つのルートを用意しました。同じ「名前 → 季節 → ルート分岐 → ゴール」の
+        フローですが、要素の指定しやすさが違います。
       </p>
-      <button data-testid="start">スタート</button>
+
+      <button data-testid="route-id">
+        🟢 ID付きルート
+      </button>
+      <p class="route-note">
+        各要素に <code>id</code> / <code>data-testid</code> あり。<br />
+        <code>getByTestId('name')</code> など ID で指定できる。
+      </p>
+
+      <button class="secondary" data-testid="route-noid">
+        🟡 IDなしルート
+      </button>
+      <p class="route-note">
+        <code>id</code> / <code>data-testid</code> なし。<br />
+        <code>getByRole</code> / <code>getByLabel</code> / <code>getByPlaceholder</code> で指定する練習。
+      </p>
     </div>
 
     <script>
-      // 前回の入力が残らないよう、開始時にリセットしておく
+      // フロー開始時に前回の入力をリセット
       sessionStorage.clear()
-      document.querySelector('[data-testid="start"]').addEventListener('click', () => {
-        window.location.href = 'steps/name.html'
+      document.querySelector('[data-testid="route-id"]').addEventListener('click', () => {
+        window.location.href = 'id/name.html'
+      })
+      document.querySelector('[data-testid="route-noid"]').addEventListener('click', () => {
+        window.location.href = 'noid/name.html'
       })
     </script>
   </body>

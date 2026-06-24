@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Playwright 研修フロー | ルート選択</title>
+    <title>IDルート | ルート選択</title>
     <link rel="stylesheet" href="../css/style.css" />
   </head>
   <body>
     <div class="card">
-      <p class="step-label">STEP 3 / 4</p>
+      <p class="step-label">IDルート — STEP 3 / 3</p>
       <h1>どちらへ行く？</h1>
       <p class="lead">選んだルートでゴールが分岐します。</p>
 
@@ -28,8 +28,7 @@
       document.querySelector('[data-testid="next"]').addEventListener('click', () => {
         const route = document.querySelector('input[name="route"]:checked').value
         sessionStorage.setItem('route', route)
-        const destination = route === 'mountain' ? '../goals/mountain.html' : '../goals/sea.html'
-        window.location.href = destination
+        window.location.href = route === 'mountain' ? 'mountain.html' : 'sea.html'
       })
     </script>
   </body>
