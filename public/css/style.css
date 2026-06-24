@@ -126,6 +126,17 @@ button:hover {
   color: var(--muted);
 }
 
+.error {
+  text-align: left;
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0;
+}
+
+.hidden {
+  display: none;
+}
+
 a.restart {
   display: inline-block;
   margin-top: 1.2rem;

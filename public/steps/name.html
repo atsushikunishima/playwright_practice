@@ -11,15 +11,35 @@
       <p class="step-label">STEP 1 / 4</p>
       <h1>お名前は？</h1>
       <label class="field" for="name">テキストボックス</label>
-      <input type="text" id="name" data-testid="name" placeholder="山田 太郎" />
+      <input type="text" id="name" data-testid="name" placeholder="山田 太郎" aria-describedby="name-error" />
+      <p class="error hidden" id="name-error" data-testid="name-error">名前を入力してください。</p>
       <button data-testid="next">次へ</button>
     </div>
 
     <script>
+      const input = document.querySelector('[data-testid="name"]')
+      const error = document.querySelector('[data-testid="name-error"]')
+
       document.querySelector('[data-testid="next"]').addEventListener('click', () => {
-        const name = document.querySelector('[data-testid="name"]').value
+        const name = input.value.trim()
+
+        // 未入力ならエラーを表示して先に進ませない
+        if (name === '') {
+          error.classList.remove('hidden')
+          input.focus()
+          return
+        }
+
+        error.classList.add('hidden')
         sessionStorage.setItem('name', name)
         window.location.href = 'season.html'
+      })
+
+      // 入力が始まったらエラーを消す
+      input.addEventListener('input', () => {
+        if (input.value.trim() !== '') {
+          error.classList.add('hidden')
+        }
       })
     </script>
   </body>
