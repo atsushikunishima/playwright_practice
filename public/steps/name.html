@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修フロー | 名前</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">STEP 1 / 4</p>
+      <h1>お名前は？</h1>
+      <label class="field" for="name">テキストボックス</label>
+      <input type="text" id="name" data-testid="name" placeholder="山田 太郎" />
+      <button data-testid="next">次へ</button>
+    </div>
+
+    <script>
+      document.querySelector('[data-testid="next"]').addEventListener('click', () => {
+        const name = document.querySelector('[data-testid="name"]').value
+        sessionStorage.setItem('name', name)
+        window.location.href = 'season.html'
+      })
+    </script>
+  </body>
+</html>

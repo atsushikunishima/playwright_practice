@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修フロー | ゴール（山）</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">STEP 4 / 4 — GOAL</p>
+      <div class="goal-emoji">⛰</div>
+      <h1 data-testid="goal-title">山ルートでゴール！</h1>
+
+      <div class="summary">
+        <div><span>名前</span><span data-testid="summary-name"></span></div>
+        <div><span>好きな季節</span><span data-testid="summary-season"></span></div>
+        <div><span>選んだルート</span><span data-testid="summary-route">山ルート</span></div>
+      </div>
+
+      <a class="restart" href="../index.html" data-testid="restart">最初からやり直す</a>
+    </div>
+
+    <script>
+      document.querySelector('[data-testid="summary-name"]').textContent =
+        sessionStorage.getItem('name') || '(未入力)'
+      document.querySelector('[data-testid="summary-season"]').textContent =
+        sessionStorage.getItem('season') || '(未選択)'
+    </script>
+  </body>
+</html>

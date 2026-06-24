@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修フロー | ルート選択</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">STEP 3 / 4</p>
+      <h1>どちらへ行く？</h1>
+      <p class="lead">選んだルートでゴールが分岐します。</p>
+
+      <div class="choice">
+        <input type="radio" id="mountain" name="route" value="mountain" data-testid="route-mountain" checked />
+        <label for="mountain">⛰ 山ルート</label>
+      </div>
+      <div class="choice">
+        <input type="radio" id="sea" name="route" value="sea" data-testid="route-sea" />
+        <label for="sea">🌊 海ルート</label>
+      </div>
+
+      <button data-testid="next">ゴールへ</button>
+    </div>
+
+    <script>
+      document.querySelector('[data-testid="next"]').addEventListener('click', () => {
+        const route = document.querySelector('input[name="route"]:checked').value
+        sessionStorage.setItem('route', route)
+        const destination = route === 'mountain' ? '../goals/mountain.html' : '../goals/sea.html'
+        window.location.href = destination
+      })
+    </script>
+  </body>
+</html>

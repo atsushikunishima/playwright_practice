@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修フロー | 季節</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <p class="step-label">STEP 2 / 4</p>
+      <h1>好きな季節は？</h1>
+      <label class="field" for="season">セレクトボックス</label>
+      <select id="season" data-testid="season">
+        <option value="春">春</option>
+        <option value="夏">夏</option>
+        <option value="秋">秋</option>
+        <option value="冬">冬</option>
+      </select>
+      <button data-testid="next">次へ</button>
+    </div>
+
+    <script>
+      document.querySelector('[data-testid="next"]').addEventListener('click', () => {
+        const season = document.querySelector('[data-testid="season"]').value
+        sessionStorage.setItem('season', season)
+        window.location.href = 'route.html'
+      })
+    </script>
+  </body>
+</html>

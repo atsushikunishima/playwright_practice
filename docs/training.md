@@ -1,7 +1,19 @@
 # Playwright 研修テキスト（約30分）
 
 このテキストは Playwright の基本操作を 30 分程度で体験するための研修用です。
-練習対象サイトは Cloudflare Pages にホスティングした本リポジトリの `public/` です。
+練習対象は Cloudflare Pages にホスティングした本リポジトリの `public/` です。
+
+サイトは「1 画面 1 要素 ＋ 次へ」のシンプルなフロー型です。
+ラジオの選択で分岐し、2 つのゴールのどちらかに辿り着きます。
+
+```
+index.html (スタート)
+  → steps/name.html    STEP1: テキストボックス
+  → steps/season.html  STEP2: セレクトボックス
+  → steps/route.html   STEP3: ラジオボタン（分岐）
+       ├─ 山ルート → goals/mountain.html
+       └─ 海ルート → goals/sea.html
+```
 
 ---
 
@@ -10,22 +22,17 @@
 - 各端末（Mac / Windows）に Playwright をインストールできる
 - ヘッドレスモードでスクリーンショットを撮れる
 - Chrome 拡張「PLAYWRIGHT_MCP_EXTENSION」で実ブラウザの動作を目で見られる
-- Puppeteer 時代と同様の Script を書いて、拡張入り Chrome を操作できる
+- フローを最後まで操作するスクリプトを書ける
 
 ---
 
 ## 1. インストール（約5分）
 
-### 前提
-- Node.js 18 以上（`node -v` で確認）
+前提: Node.js 18 以上（`node -v` で確認）
 
-### 手順
 ```bash
-# プロジェクトを作る場合
 mkdir playwright-training && cd playwright-training
 npm init -y
-
-# Playwright をインストール
 npm install -D @playwright/test
 npx playwright install   # ブラウザ本体をダウンロード
 ```
@@ -34,45 +41,54 @@ npx playwright install   # ブラウザ本体をダウンロード
 
 ---
 
-## 2. ヘッドレスでスクリーンショット（約10分）
+## 2. フローを最後まで操作する（約10分）
 
-`shot.spec.js` を作成:
+各要素に `data-testid` が付いているので、セレクタは `getByTestId` で安定して書けます。
+「次へ」ボタンはどの画面でも `data-testid="next"` で統一しています。
+
+`flow.spec.js`:
 
 ```javascript
-const { test } = require('@playwright/test')
+const { test, expect } = require('@playwright/test')
 
-test('研修サイトのスクショを撮る', async ({ page }) => {
-  await page.goto('https://<あなたのサイト>.pages.dev/')
-  await page.screenshot({ path: 'home.png', fullPage: true })
+const BASE = 'https://<あなたのサイト>.pages.dev'
 
-  // フォームページに移動して入力 → スクショ
-  await page.getByTestId('link-form').click()
-  await page.getByTestId('name').fill('山田 太郎')
-  await page.getByTestId('email').fill('taro@example.com')
-  await page.getByTestId('agree').check()
-  await page.getByTestId('submit').click()
-  await page.screenshot({ path: 'form-result.png' })
+test('山ルートでゴールする', async ({ page }) => {
+  await page.goto(`${BASE}/`)
+  await page.getByTestId('start').click()          // STEP0 → 1
+
+  await page.getByTestId('name').fill('山田 太郎')  // STEP1 テキスト
+  await page.getByTestId('next').click()
+
+  await page.getByTestId('season').selectOption('秋') // STEP2 セレクト
+  await page.getByTestId('next').click()
+
+  await page.getByTestId('route-mountain').check()  // STEP3 ラジオ（分岐）
+  await page.getByTestId('next').click()
+
+  // ゴール確認
+  await expect(page.getByTestId('goal-title')).toHaveText('山ルートでゴール！')
+  await expect(page.getByTestId('summary-name')).toHaveText('山田 太郎')
+  await page.screenshot({ path: 'goal-mountain.png' })
 })
 ```
 
 実行（ヘッドレスがデフォルト）:
 ```bash
-npx playwright test shot.spec.js
+npx playwright test flow.spec.js
 ```
-
-生成された `home.png` / `form-result.png` を確認する。
 
 ---
 
-## 3. 実ブラウザを目で見る（headed / 拡張）（約10分）
+## 3. 実ブラウザを目で見る（約10分）
 
-### A. headed モードで見る（拡張なしでもOK）
+### A. headed モード
 ```bash
-npx playwright test shot.spec.js --headed
+npx playwright test flow.spec.js --headed
 ```
-ブラウザが立ち上がり、操作が目で見える。
+ブラウザが立ち上がり、操作が目で見えます。
 
-### B. PLAYWRIGHT_MCP_EXTENSION を使う
+### B. PLAYWRIGHT_MCP_EXTENSION
 - Chrome に拡張「Playwright MCP Extension」をインストール
 - 拡張を起動すると接続トークンが発行される（セッションごとに変わる）
 - Claude Code など MCP クライアントから `browser_navigate` などで操作すると、
@@ -82,46 +98,28 @@ npx playwright test shot.spec.js --headed
 
 ---
 
-## 4. よく使う操作（チートシート）
+## 4. 練習課題
+
+1. **海ルートに分岐させる**
+   - STEP3 で `route-sea` を選び、ゴールが「海ルートでゴール！」になることを確認
+2. **入力した名前がゴールに表示されることを確認**
+   - `summary-name` が入力値と一致するか `expect` で検証
+3. **季節を変える**
+   - `selectOption('冬')` にしてスクショを撮る
+4. **2 パターンを 1 ファイルで**
+   - 山ルートと海ルートの 2 テストを書き、両方 green にする
+
+---
+
+## 5. チートシート
 
 | やりたいこと | コード例 |
 |---|---|
 | ページ移動 | `await page.goto(url)` |
-| testid で取得 | `page.getByTestId('username')` |
+| testid で取得 | `page.getByTestId('name')` |
 | クリック | `await locator.click()` |
 | テキスト入力 | `await locator.fill('値')` |
-| チェック | `await locator.check()` |
-| セレクト選択 | `await page.getByTestId('prefecture').selectOption('tokyo')` |
-| ラジオ選択 | `await page.getByTestId('drink-coffee').check()` |
-| 表示待ち | `await page.getByTestId('delayed-message').waitFor()` |
-| ダイアログ処理 | `page.on('dialog', d => d.accept())` |
+| セレクト選択 | `await page.getByTestId('season').selectOption('秋')` |
+| ラジオ選択 | `await page.getByTestId('route-sea').check()` |
+| テキスト検証 | `await expect(locator).toHaveText('...')` |
 | スクショ | `await page.screenshot({ path: 'a.png' })` |
-| アサーション | `await expect(locator).toHaveText('...')` |
-
----
-
-## 5. 練習課題（このサイトで試す）
-
-各ページの要素には `data-testid` が付いています。
-
-1. **フォームページ** (`pages/form.html`)
-   - 名前・メール・年齢・メッセージを入力し、規約に同意して送信
-   - `form-result` に送信内容が表示されることを確認
-2. **ウィジェットページ** (`pages/widgets.html`)
-   - ラジオで「紅茶」を選び `drink-selected` が「紅茶」になることを確認
-   - セレクトで「大阪府」を選ぶ
-   - `+1` を3回押して `counter` が `3` になることを確認
-3. **ログインページ** (`pages/login.html`)
-   - 誤った情報でログイン → `login-error` が表示される
-   - `admin` / `password123` でログイン → `login-success` が表示される
-4. **動的要素ページ** (`pages/dynamic.html`)
-   - 「読み込み開始」を押し、2秒後に `delayed-message` が出るのを `waitFor` で待つ
-   - 確認ダイアログで OK を押し、結果が更新されることを確認
-
----
-
-## 付録: セレクタの優先順位
-
-1. `getByRole` / `getByLabel` / `getByTestId`（推奨・壊れにくい）
-2. `getByText`
-3. CSS / XPath（最終手段）
