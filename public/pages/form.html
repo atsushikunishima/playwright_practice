@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修サイト | フォーム</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 data-testid="page-title">フォーム</h1>
+    </header>
+    <nav data-testid="main-nav" data-depth="sub"></nav>
+
+    <main>
+      <section>
+        <h2>お問い合わせフォーム</h2>
+        <form data-testid="contact-form">
+          <label for="name">お名前（テキスト）</label>
+          <input type="text" id="name" name="name" data-testid="name" placeholder="山田 太郎" />
+
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" name="email" data-testid="email" placeholder="taro@example.com" />
+
+          <label for="age">年齢（数値）</label>
+          <input type="number" id="age" name="age" data-testid="age" min="0" max="150" />
+
+          <label for="message">お問い合わせ内容（テキストエリア）</label>
+          <textarea id="message" name="message" data-testid="message"></textarea>
+
+          <div class="choice">
+            <input type="checkbox" id="agree" name="agree" data-testid="agree" />
+            <label for="agree">利用規約に同意する</label>
+          </div>
+
+          <div class="row">
+            <button type="submit" data-testid="submit">送信</button>
+            <button type="reset" class="secondary" data-testid="reset">クリア</button>
+          </div>
+        </form>
+
+        <div class="result hidden" data-testid="form-result"></div>
+      </section>
+    </main>
+
+    <footer>Playwright 研修用</footer>
+
+    <script src="../js/nav.js"></script>
+    <script>
+      const form = document.querySelector('[data-testid="contact-form"]')
+      const result = document.querySelector('[data-testid="form-result"]')
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        const data = new FormData(form)
+        const summary = {
+          name: data.get('name') || '(未入力)',
+          email: data.get('email') || '(未入力)',
+          age: data.get('age') || '(未入力)',
+          message: data.get('message') || '(未入力)',
+          agree: data.get('agree') ? 'はい' : 'いいえ',
+        }
+        result.textContent = `送信完了\n${JSON.stringify(summary, null, 2)}`
+        result.classList.remove('hidden')
+      })
+
+      form.addEventListener('reset', () => {
+        result.classList.add('hidden')
+        result.textContent = ''
+      })
+    </script>
+  </body>
+</html>

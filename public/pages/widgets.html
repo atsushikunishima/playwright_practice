@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修サイト | ウィジェット</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 data-testid="page-title">ウィジェット</h1>
+    </header>
+    <nav data-testid="main-nav" data-depth="sub"></nav>
+
+    <main>
+      <section>
+        <h2>ラジオボタン</h2>
+        <p>好きな飲み物を選んでください。</p>
+        <div class="choice">
+          <input type="radio" id="coffee" name="drink" value="コーヒー" data-testid="drink-coffee" />
+          <label for="coffee">コーヒー</label>
+        </div>
+        <div class="choice">
+          <input type="radio" id="tea" name="drink" value="紅茶" data-testid="drink-tea" />
+          <label for="tea">紅茶</label>
+        </div>
+        <div class="choice">
+          <input type="radio" id="water" name="drink" value="水" data-testid="drink-water" />
+          <label for="water">水</label>
+        </div>
+        <p>選択中: <span class="badge" data-testid="drink-selected">なし</span></p>
+      </section>
+
+      <section>
+        <h2>セレクトボックス</h2>
+        <label for="prefecture">都道府県を選択</label>
+        <select id="prefecture" data-testid="prefecture">
+          <option value="">-- 選択してください --</option>
+          <option value="tokyo">東京都</option>
+          <option value="osaka">大阪府</option>
+          <option value="aichi">愛知県</option>
+          <option value="fukuoka">福岡県</option>
+        </select>
+        <p>選択中: <span class="badge" data-testid="prefecture-selected">なし</span></p>
+      </section>
+
+      <section>
+        <h2>ボタンとカウンター</h2>
+        <p>現在の値: <span class="badge" data-testid="counter">0</span></p>
+        <div class="row">
+          <button data-testid="increment">+1</button>
+          <button class="secondary" data-testid="decrement">-1</button>
+          <button class="danger" data-testid="reset">リセット</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>表示トグル</h2>
+        <button data-testid="toggle">メッセージを表示/非表示</button>
+        <p class="result hidden" data-testid="toggle-message">こんにちは、Playwright！</p>
+      </section>
+    </main>
+
+    <footer>Playwright 研修用</footer>
+
+    <script src="../js/nav.js"></script>
+    <script>
+      // ラジオボタン
+      const drinkBadge = document.querySelector('[data-testid="drink-selected"]')
+      document.querySelectorAll('input[name="drink"]').forEach((radio) => {
+        radio.addEventListener('change', (event) => {
+          drinkBadge.textContent = event.target.value
+        })
+      })
+
+      // セレクトボックス
+      const prefSelect = document.querySelector('[data-testid="prefecture"]')
+      const prefBadge = document.querySelector('[data-testid="prefecture-selected"]')
+      prefSelect.addEventListener('change', () => {
+        const selected = prefSelect.options[prefSelect.selectedIndex]
+        prefBadge.textContent = selected.value ? selected.text : 'なし'
+      })
+
+      // カウンター（イミュータブルに値を更新）
+      let count = 0
+      const counter = document.querySelector('[data-testid="counter"]')
+      const render = (value) => {
+        counter.textContent = String(value)
+      }
+      document.querySelector('[data-testid="increment"]').addEventListener('click', () => {
+        count = count + 1
+        render(count)
+      })
+      document.querySelector('[data-testid="decrement"]').addEventListener('click', () => {
+        count = count - 1
+        render(count)
+      })
+      document.querySelector('[data-testid="reset"]').addEventListener('click', () => {
+        count = 0
+        render(count)
+      })
+
+      // トグル
+      const toggleMessage = document.querySelector('[data-testid="toggle-message"]')
+      document.querySelector('[data-testid="toggle"]').addEventListener('click', () => {
+        toggleMessage.classList.toggle('hidden')
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修サイト | 動的要素</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 data-testid="page-title">動的要素</h1>
+    </header>
+    <nav data-testid="main-nav" data-depth="sub"></nav>
+
+    <main>
+      <section>
+        <h2>遅延表示</h2>
+        <p>ボタンを押すと 2 秒後にメッセージが表示されます。<code>wait_for</code> の練習に使えます。</p>
+        <button data-testid="load-button">読み込み開始</button>
+        <p class="badge" data-testid="loading-status" style="margin-left: 0.5rem">待機中</p>
+        <div class="result hidden" data-testid="delayed-message">
+          🎉 2 秒後に表示されたメッセージです。
+        </div>
+      </section>
+
+      <section>
+        <h2>リスト追加</h2>
+        <p>クリックするたびにアイテムが増えます。</p>
+        <button data-testid="add-item">アイテムを追加</button>
+        <ul data-testid="item-list"></ul>
+      </section>
+
+      <section>
+        <h2>ダイアログ</h2>
+        <p>ネイティブの確認ダイアログ（<code>browser_handle_dialog</code> の練習）。</p>
+        <button data-testid="open-dialog">確認ダイアログを開く</button>
+        <p class="badge" data-testid="dialog-result">未操作</p>
+      </section>
+    </main>
+
+    <footer>Playwright 研修用</footer>
+
+    <script src="../js/nav.js"></script>
+    <script>
+      // 遅延表示
+      const loadButton = document.querySelector('[data-testid="load-button"]')
+      const status = document.querySelector('[data-testid="loading-status"]')
+      const delayed = document.querySelector('[data-testid="delayed-message"]')
+      loadButton.addEventListener('click', () => {
+        status.textContent = '読み込み中...'
+        delayed.classList.add('hidden')
+        setTimeout(() => {
+          status.textContent = '完了'
+          delayed.classList.remove('hidden')
+        }, 2000)
+      })
+
+      // リスト追加（既存配列を破壊せず連番を管理）
+      let itemCount = 0
+      const list = document.querySelector('[data-testid="item-list"]')
+      document.querySelector('[data-testid="add-item"]').addEventListener('click', () => {
+        itemCount = itemCount + 1
+        const li = document.createElement('li')
+        li.textContent = `アイテム ${itemCount}`
+        li.setAttribute('data-testid', `item-${itemCount}`)
+        list.appendChild(li)
+      })
+
+      // ダイアログ
+      const dialogResult = document.querySelector('[data-testid="dialog-result"]')
+      document.querySelector('[data-testid="open-dialog"]').addEventListener('click', () => {
+        const ok = window.confirm('続行しますか？')
+        dialogResult.textContent = ok ? 'OK が押されました' : 'キャンセルされました'
+      })
+    </script>
+  </body>
+</html>

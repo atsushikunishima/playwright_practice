@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright 研修サイト | ホーム</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1 data-testid="page-title">Playwright 研修サイト</h1>
+    </header>
+    <nav data-testid="main-nav" data-depth="root"></nav>
+
+    <main>
+      <section data-testid="intro">
+        <h2>このサイトについて</h2>
+        <p>
+          このサイトは Playwright の操作練習用です。各ページにフォーム要素・ボタン・
+          ラジオボタン・セレクトボックス・テキストボックスなどを配置しています。
+        </p>
+        <p>
+          要素には <code>data-testid</code> 属性を付けているので、安定したセレクタの
+          練習に使えます。例: <code>page.getByTestId('username')</code>
+        </p>
+      </section>
+
+      <section data-testid="page-list">
+        <h2>練習ページ一覧</h2>
+        <ul>
+          <li>
+            <a href="pages/form.html" data-testid="link-form">フォーム</a>
+            — テキスト入力・チェックボックス・テキストエリアの送信
+          </li>
+          <li>
+            <a href="pages/widgets.html" data-testid="link-widgets">ウィジェット</a>
+            — ボタン・ラジオボタン・セレクトボックス・カウンター
+          </li>
+          <li>
+            <a href="pages/login.html" data-testid="link-login">ログイン</a>
+            — 認証フロー（成功/失敗）の練習
+          </li>
+          <li>
+            <a href="pages/dynamic.html" data-testid="link-dynamic">動的要素</a>
+            — 遅延表示・待機（wait_for）の練習
+          </li>
+        </ul>
+      </section>
+
+      <section data-testid="counter-demo">
+        <h2>動作確認用カウンター</h2>
+        <p>現在の値: <span class="badge" data-testid="home-counter">0</span></p>
+        <div class="row">
+          <button data-testid="home-increment">+1</button>
+          <button class="secondary" data-testid="home-reset">リセット</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>Playwright 研修用 — Cloudflare Pages でホスティング</footer>
+
+    <script src="js/nav.js"></script>
+    <script>
+      // ホームの簡易カウンター（イミュータブルに状態を持つ）
+      let count = 0
+      const display = document.querySelector('[data-testid="home-counter"]')
+      const render = (value) => {
+        display.textContent = String(value)
+      }
+      document
+        .querySelector('[data-testid="home-increment"]')
+        .addEventListener('click', () => {
+          count = count + 1
+          render(count)
+        })
+      document
+        .querySelector('[data-testid="home-reset"]')
+        .addEventListener('click', () => {
+          count = 0
+          render(count)
+        })
+    </script>
+  </body>
+</html>
