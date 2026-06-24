@@ -1,148 +1,166 @@
 # Playwright 研修テキスト（約30分）
 
-このテキストは Playwright の基本操作を 30 分程度で体験するための研修用です。
-練習対象は Cloudflare Pages にホスティングした本リポジトリの `public/` です。
+AI（Claude Code）にブラウザを操作させる体験を通して、Playwright の使いどころを掴む研修です。
 
-サイトは「1 画面 1 要素 ＋ 次へ」のシンプルなフロー型です。
-TOP から 2 つのルートに分かれ、ラジオの選択でさらに分岐して 2 つのゴールに辿り着きます。
+## 全体の流れ
+
+1. **【ヘッドレス】AI が 1 画面ずつ判断して操作**（画面は見えない。スクショで確認）
+2. **【拡張機能】同じ操作を実ブラウザで“見える化”**（AI が操作している様子が目で見える → なるほど！）
+3. **【スクリプト】毎回 LLM トークンを使わず動かす**（AI にスクリプトを書かせて実行）
+
+練習対象サイト（公開済み）:
 
 ```
-index.html (TOP)
-  ├─ 🟢 ID付きルート  … id/ 配下。getByTestId など ID で指定できる
-  │     id/name.html    STEP1: テキストボックス
-  │     id/season.html  STEP2: セレクトボックス
-  │     id/route.html   STEP3: ラジオ（分岐）
-  │        ├─ 山 → id/mountain.html
-  │        └─ 海 → id/sea.html
-  └─ 🟡 IDなしルート  … noid/ 配下。getByRole / getByLabel / getByPlaceholder で指定
-        noid/name.html / season.html / route.html → mountain.html / sea.html
+https://playwright-practice-9ix.pages.dev/
 ```
 
-- **ID付きルート**: 各要素に `id` / `data-testid` あり。安定したセレクタの基本練習。
-- **IDなしルート**: ID なし。ロール・ラベル・プレースホルダーで指定する応用練習。
+TOP から「🟢 ID付きルート」を選び、`名前(テキスト) → 季節(セレクト) → ルート(ラジオ分岐) → ゴール` と進むシンプルなフローです。
 
 ---
 
-## 0. ゴール
+## 0. 事前準備（約5分）
 
-- 各端末（Mac / Windows）に Playwright をインストールできる
-- ヘッドレスモードでスクリーンショットを撮れる
-- Chrome 拡張「PLAYWRIGHT_MCP_EXTENSION」で実ブラウザの動作を目で見られる
-- フローを最後まで操作するスクリプトを書ける
+前提: Node.js 18 以上（`node -v`）と Claude Code。
 
----
-
-## 1. インストール（約5分）
-
-前提: Node.js 18 以上（`node -v` で確認）
+Playwright MCP をインストール（まだの場合）:
 
 ```bash
-mkdir playwright-training && cd playwright-training
-npm init -y
-npm install -D @playwright/test
-npx playwright install   # ブラウザ本体をダウンロード
+# ① ヘッドレス用（画面を出さずに動く）
+claude mcp add playwright --scope user -- npx @playwright/mcp@latest --headless
+
+# ブラウザ本体の取得（初回のみ）
+npx playwright install chromium
+
+# 確認
+claude mcp list   # playwright が ✓ Connected ならOK
 ```
 
-> Mac / Windows どちらも同じコマンドです。
+> 既に `--extension` で登録済みの人は、後半の【②拡張機能】でその設定を使います。
 
 ---
 
-## 2. フローを最後まで操作する（約10分）
+## 1.【ヘッドレス】AI が 1 画面ずつ判断して操作（約8分）
 
-各要素に `data-testid` が付いているので、セレクタは `getByTestId` で安定して書けます。
-「次へ」ボタンはどの画面でも `data-testid="next"` で統一しています。
+画面は表示されません。AI が各画面を見て「何の要素があるか」を自分で判断し、操作して、
+指定タイミングでスクリーンショットを撮ります。
 
-`flow.spec.js`:
+### サンプルプロンプト（Claude Code にそのまま貼り付け）
+
+```
+Playwright（ヘッドレス）で次の研修サイトを操作してください。
+URL: https://playwright-practice-9ix.pages.dev/
+
+進め方:
+1. TOP ページを開き、スクリーンショットを撮る
+2. 「ID付きルート」のボタンを押して進む
+3. ここから先は 1 画面ずつ、画面に何の入力要素があるかを自分で確認・判断して操作する
+   - テキストボックスがあれば任意の名前を入力
+   - セレクトボックスがあれば好きな季節を選ぶ
+   - ラジオボタンがあれば「山ルート」を選ぶ
+4. 各画面で「操作する前」と「次へ進んだ直後」の 2 枚スクリーンショットを撮る
+5. ゴール画面に着いたらスクリーンショットを撮り、表示されている内容を報告する
+```
+
+ポイント:
+- 手順 3 が「AI が 1 画面ずつ判断する」部分。要素の種類を教えず、AI に見て選ばせる。
+- スクショのタイミング（操作前・遷移後・ゴール）を明示している。
+- このプロンプトは Playwright MCP が入っていればそのまま動きます。
+
+---
+
+## 2.【拡張機能】同じ操作を実ブラウザで“見える化”（約10分）
+
+ヘッドレスだと「本当に動いてるの?」となりがち。拡張機能を使うと、
+**今開いている Chrome を AI がそのまま操作する**ので、クリックや入力が目で見えます。
+
+### 拡張機能のインストール
+
+1. Chrome ウェブストアで **「Playwright MCP Extension」** をインストール
+2. 拡張機能を起動（セッションごとに接続トークンが発行される）
+
+### MCP を拡張機能モードに切り替え
+
+```bash
+# 一度削除してから --extension で登録し直す
+claude mcp remove playwright
+claude mcp add playwright --scope user -- npx @playwright/mcp@latest --extension
+
+claude mcp list   # ✓ Connected を確認
+```
+
+### 実行
+
+**手順 1 と同じプロンプトをもう一度貼り付けるだけ。**
+今度は Chrome の画面上で、AI が TOP をクリックし、名前を入力し、季節を選び…と
+操作していく様子が見えます。これが「AI がブラウザを操作している」の正体です。
+
+---
+
+## 3.【スクリプト】毎回 LLM トークンを使わず動かす（約7分）
+
+手順 1〜2 は便利ですが、**実行のたびに LLM のトークン（＝コスト）を消費**します。
+毎回同じ操作をするなら、一度スクリプトにしてしまえば LLM 不要・高速・無料で何度でも回せます。
+
+### スクリプトを AI に書かせるプロンプト
+
+```
+さっき操作したフローを Playwright のテストスクリプトに書き起こしてください。
+
+- ファイル名: tests/flow.spec.js
+- 対象: https://playwright-practice-9ix.pages.dev/
+- TOP で「ID付きルート」を選択
+- 名前に「山田太郎」を入力 / 季節は「秋」 / 「山ルート」を選択
+- 最後にゴール見出しが「山ルートでゴール！」であることを expect で検証
+- 各ステップの後にスクリーンショットを撮る（screenshots/ に保存）
+- 要素は getByTestId など壊れにくいセレクタで指定する
+```
+
+### 生成されたスクリプトの実行コマンド
+
+```bash
+# 初回だけ: テストランナーを入れる
+npm install -D @playwright/test
+npx playwright install chromium
+
+# 実行（ヘッドレス・LLM トークンは消費しない）
+npx playwright test tests/flow.spec.js
+
+# 操作を目で見たいとき
+npx playwright test tests/flow.spec.js --headed
+```
+
+これで完了です。
+**「探索や判断が要る作業は AI（手順1・2）／決まりきった反復はスクリプト（手順3）」**
+という Playwright の使い分けが体感できれば研修のゴールです。
+
+---
+
+## 付録: 生成されるスクリプトの例
 
 ```javascript
 const { test, expect } = require('@playwright/test')
 
-const BASE = 'https://<あなたのサイト>.pages.dev'
+const BASE = 'https://playwright-practice-9ix.pages.dev'
 
-// ── ID付きルート（getByTestId で指定）──
-test('IDルート: 山ルートでゴールする', async ({ page }) => {
+test('IDルート: 山ルートでゴール', async ({ page }) => {
   await page.goto(`${BASE}/`)
-  await page.getByTestId('route-id').click()        // TOP → IDルート
+  await page.getByTestId('route-id').click()
+  await page.screenshot({ path: 'screenshots/01-top.png' })
 
-  await page.getByTestId('name').fill('山田 太郎')  // STEP1 テキスト
+  await page.getByTestId('name').fill('山田太郎')
+  await page.getByTestId('next').click()
+  await page.screenshot({ path: 'screenshots/02-name.png' })
+
+  await page.getByTestId('season').selectOption('秋')
   await page.getByTestId('next').click()
 
-  await page.getByTestId('season').selectOption('秋') // STEP2 セレクト
-  await page.getByTestId('next').click()
-
-  await page.getByTestId('route-mountain').check()  // STEP3 ラジオ（分岐）
+  await page.getByTestId('route-mountain').check()
   await page.getByTestId('next').click()
 
   await expect(page.getByTestId('goal-title')).toHaveText('山ルートでゴール！')
-  await expect(page.getByTestId('summary-name')).toHaveText('山田 太郎')
-  await page.screenshot({ path: 'goal-mountain.png' })
-})
-
-// ── IDなしルート（role / label / placeholder で指定）──
-test('IDなしルート: 海ルートでゴールする', async ({ page }) => {
-  await page.goto(`${BASE}/`)
-  await page.getByTestId('route-noid').click()      // TOP → IDなしルート
-
-  await page.getByLabel('テキストボックス').fill('佐藤 花子')
-  await page.getByRole('button', { name: '次へ' }).click()
-
-  await page.getByLabel('セレクトボックス').selectOption('夏')
-  await page.getByRole('button', { name: '次へ' }).click()
-
-  await page.getByRole('radio', { name: '🌊 海ルート' }).check()
-  await page.getByRole('button', { name: 'ゴールへ' }).click()
-
-  await expect(page.getByRole('heading')).toHaveText('海ルートでゴール！')
+  await page.screenshot({ path: 'screenshots/03-goal.png' })
 })
 ```
 
-実行（ヘッドレスがデフォルト）:
-```bash
-npx playwright test flow.spec.js
-```
-
----
-
-## 3. 実ブラウザを目で見る（約10分）
-
-### A. headed モード
-```bash
-npx playwright test flow.spec.js --headed
-```
-ブラウザが立ち上がり、操作が目で見えます。
-
-### B. PLAYWRIGHT_MCP_EXTENSION
-- Chrome に拡張「Playwright MCP Extension」をインストール
-- 拡張を起動すると接続トークンが発行される（セッションごとに変わる）
-- Claude Code など MCP クライアントから `browser_navigate` などで操作すると、
-  今開いている Chrome がそのまま動く
-
-> 詳細は `~/.claude/rules/playwright.md` を参照。
-
----
-
-## 4. 練習課題
-
-1. **海ルートに分岐させる**
-   - STEP3 で `route-sea` を選び、ゴールが「海ルートでゴール！」になることを確認
-2. **入力した名前がゴールに表示されることを確認**
-   - `summary-name` が入力値と一致するか `expect` で検証
-3. **季節を変える**
-   - `selectOption('冬')` にしてスクショを撮る
-4. **2 パターンを 1 ファイルで**
-   - 山ルートと海ルートの 2 テストを書き、両方 green にする
-
----
-
-## 5. チートシート
-
-| やりたいこと | コード例 |
-|---|---|
-| ページ移動 | `await page.goto(url)` |
-| testid で取得 | `page.getByTestId('name')` |
-| クリック | `await locator.click()` |
-| テキスト入力 | `await locator.fill('値')` |
-| セレクト選択 | `await page.getByTestId('season').selectOption('秋')` |
-| ラジオ選択 | `await page.getByTestId('route-sea').check()` |
-| テキスト検証 | `await expect(locator).toHaveText('...')` |
-| スクショ | `await page.screenshot({ path: 'a.png' })` |
+> IDなしルート（`noid/`）は `getByRole` / `getByLabel` / `getByPlaceholder` で
+> 指定する応用練習に使えます。
